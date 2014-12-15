@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Velocity Graph</title>
+	</head>
+	<body>
+
+		<script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+		<script type="text/javascript" src="bower_components/canvg/dist/canvg.min.js"></script>
+		<script type="text/javascript" src="scom.js"></script>
+		<script type="text/javascript">
+
+			Array.prototype.getHeightest = function() {
+				var heightest = this[0];
+				for (var i in this)
+					heightest = (this[i] > heightest) ? this[i] : heightest;
+				return heightest;
+			};
+
+			Array.prototype.getLowest = function() {
+				var lowest = this.getHeightest();
+				for (var i in this)
+					lowest = (this[i] < lowest) ? this[i] : lowest;
+				return lowest;
+			};
+
+			function drawcircle(cx, cy) {
+				var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+				circle.setAttribute("cx", cx);
+				circle.setAttribute("cy", cy);
+				circle.setAttribute("r", "2");
+				circle.setAttribute("style", "stroke: red; stroke: red;");
+				return circle;
+			}
+
+			function drawpath(d) {
+				var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+				path.setAttribute("style", "fill: transparent; stroke: #06c; stroke-width: 2;");
+				path.setAttribute("d", d);
+				return path;
+			}
+
+			function drawName(name) {
+				var text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+				text.setAttribute('x', 0);
+				text.setAttribute('y', 15);
+				text.innerHTML = name
+				return text;
+			}
+
+			function plotvgraph(data) {
+				var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+				var range = 1;
+				var factor = 7;
+				var h = data.getHeightest() + data.getLowest();
+				var w = data.length * range;
+				var x = 0;
+				var y = data[0] * factor;
+				var d = "M " + x + " " + y + " L ";
+
+				svg.setAttribute('height', (h * factor) + 'px');
+				svg.setAttribute('width', w + 'px');
+
+				for (var i = 0; i < data.length; i++) {
+					x += range;
+					y = data[i] * factor;
+					d += x + " " + y + ", ";
+				}
+				d = d.substr(0, d.length - 2);
+
+				var path = drawpath(d);
+				svg.appendChild(path);
+
+				var text = drawName('SCOM');
+				svg.appendChild(text);
+
+				document.body.appendChild(svg);
+			}
+
+			function svgToCanvas() {
+				var canvas = document.createElement('canvas');
+				var svg = document.getElementsByTagName('svg')[0];
+
+				canvas.height = svg.getAttribute('height');
+				canvas.width = svg.getAttribute('width');
+
+				canvg(canvas, svg.outerHTML);
+
+				document.body.appendChild(canvas);
+			}
+
+			function canvasToImg() {
+				var canvas = document.getElementsByTagName('canvas')[0];
+		    var dataURL = canvas.toDataURL("image/png");
+		    var img = new Image();
+		    var f = 5;
+
+		    img.height = canvas.getAttribute('height');
+				img.width = canvas.getAttribute('width');
+		    img.setAttribute('src', dataURL);	
+
+		    document.body.appendChild(img);
+
+		  	// img.height = img.height / f;
+				// img.width = img.width / f;
+				return dataURL;
+			}
+
+			$(function() {	
+
+				// getBase64FromImageUrl('yosemite-sam.jpg');
+
+				var prices = [];
+				for (var i in data)
+					prices.push(data[i].previous_day_price);
+				prices = prices.filter(function (i) { if (i != undefined) return i; });
+
+				plotvgraph(prices);
+
+				svgToCanvas();
+
+				canvasToImg();
+
+			});
+
+		</script>
+	</body>
+</html>
