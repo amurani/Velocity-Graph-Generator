@@ -95,6 +95,13 @@ var velocity = {
 		var img = new Image();
 		img.src = canvas.toDataURL("image/png");
 		return img;
+	},
+
+	generateGraph : function(data, name) {
+		var svg = velocity.plotVgraph(data, name);
+		var canvas = velocity.svgToCanvas(svg);
+		var img = velocity.canvasToImg(canvas);
+		return img;
 	}
 
 };

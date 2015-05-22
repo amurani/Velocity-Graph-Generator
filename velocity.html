@@ -19,10 +19,7 @@
 				function renderCompanyData(company) {
 					$.getJSON('data/' + company.toUpperCase() + '.json', function (prices) {
 						if (prices.length > 0) {
-							var svg = velocity.plotVgraph(prices, company);
-							var canvas = velocity.svgToCanvas(svg);
-							var img = velocity.canvasToImg(canvas);
-
+							var img = velocity.generateGraph(prices, company);
 							$('body').append(img);
 						}
 					});

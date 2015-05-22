@@ -6,6 +6,7 @@ var document = jsdom();
 module.exports = {
 
 	HEIGHT : 75,
+	IMAGE_LOCATION : 'imgs/',
 
 	getHeighest : function(data) {
 		var heightest = data[0];
@@ -91,7 +92,7 @@ module.exports = {
 
 	saveImgToFile : function(fileName, base64Img) {
 		base64Img = base64Img.replace(/^data:image\/png;base64,/, "");
-		fs.writeFile('imgs/' + fileName + '.png', base64Img, 'base64', function(err) { console.log(fileName, err); });
+		fs.writeFile(IMAGE_LOCATION + fileName + '.png', base64Img, 'base64', function(err) { console.log(fileName, err); });
 	},
 
 	generateGraph : function(data, file_name) {
