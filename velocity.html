@@ -3,147 +3,32 @@
 	<head>
 		<title>Velocity Graph</title>
 		<style type="text/css">
-			img { width: auto; height: 25px; }
+			body { background-color: #f2f2f2; text-align: center; }
+			img { width: auto; height: 75px; background-color: #fff; border: 1px solid #ccc; border-radius: 3px; padding: 5px; display: inline-block; margin: 5px; }
 		</style>
 	</head>
 	<body>
 
 		<script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
 		<script type="text/javascript" src="bower_components/canvg/dist/canvg.min.js"></script>
+		<script type="text/javascript" src="velocity_html.js"></script>
 		<script type="text/javascript">
-
-			var velocity = {
-
-				HEIGHT : 50,
-
-				getHeighest : function(data) {
-					var heightest = data[0];
-					for (var i in data)
-						heightest = (data[i] > heightest) ? data[i] : heightest;
-					return heightest;
-				},
-
-				getLowest : function(data) {
-					var lowest = this.getHeighest(data);
-					for (var i in data)
-						lowest = (data[i] < lowest) ? data[i] : lowest;
-					return lowest;
-				},
-
-				getFactor : function(data) {
-					var heightest = this.getHeighest(data)
-					var lowest = this.getLowest(data);
-					var diff = heightest - lowest;
-					diff = (diff == 0) ? 1 : diff;
-
-					var factor = ( (1 / diff) * this.HEIGHT);
-					return factor;
-				},
-
-				scaleData : function(data) {
-					var factor = this.getFactor(data);
-					for (var i = 0; i < data.length; i++)
-						data[i] = data[i] * factor;
-					return data;
-				},
-
-				drawPath : function(d) {
-					var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-					path.setAttribute("style", "fill: transparent; stroke: #06c; stroke-width: 2;");
-					path.setAttribute("d", d);
-					return path;
-				},
-
-				drawName : function(name) {
-					var text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-					text.setAttribute('x', 0);
-					text.setAttribute('y', 15);
-					text.innerHTML = name
-					return text;
-				},
-
-				plotVgraph : function(data, company) {
-					var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-					var range = 1;
-					var factor = this.HEIGHT;
-					data = this.scaleData(data);
-					h = 50;
-					h = (h == 0) ? 10 : h;
-					h = (h > 50) ? h / factor : h;
-					var h = factor;
-					var w = data.length * range;
-					var x = 0;
-					var y = this.getHeighest(data) - data[0];
-					var d = "M " + x + " " + y + " L ";
-
-					svg.setAttribute('height', h + 'px');
-					svg.setAttribute('width', w + 'px');
-
-					for (var i = 0; i < data.length; i++) {
-						x += range;
-						y = this.getHeighest(data) - data[i];
-						d += x + " " + y + ", ";
-					}
-					d = d.substr(0, d.length - 2);
-
-					if (company != undefined) {
-						var text = this.drawName(company);
-						svg.appendChild(text);
-					}
-
-					var path = this.drawPath(d);
-					svg.appendChild(path);
-
-					return svg;
-				},
-
-				svgToCanvas : function(svg) {
-					var canvas = document.createElement('canvas');
-
-					canvas.height = svg.getAttribute('height');
-					canvas.width = svg.getAttribute('width');
-
-					canvg(canvas, svg.outerHTML);
-
-					return canvas;
-				},
-
-				canvasToImg : function(canvas) {
-					// server
-				  /*var dataURL = canvas.toDataURL("image/png");
-					return dataURL;*/
-
-					// client
-					var img = new Image();
-					img.src = canvas.toDataURL("image/png");
-					return img;
-				},
-
-				saveImgToFile : function(fileName, base64Img) {
-					base64Img = base64Img.replace(/^data:image\/png;base64,/, "");
-					fs.writeFile('imgs/' + fileName + '.png', base64Img, 'base64', function(err) { console.log(err); });
-				}
-
-			};
 
 			$(function() {
 
 				function renderCompanyData(company) {
 					$.getJSON('data/' + company.toUpperCase() + '.json', function (prices) {
 						if (prices.length > 0) {
-							// if (company.match('BAUM')) {
-								var svg = velocity.plotVgraph(prices, company);
-								var canvas = velocity.svgToCanvas(svg);
-								var img = velocity.canvasToImg(canvas);
+							var svg = velocity.plotVgraph(prices, company);
+							var canvas = velocity.svgToCanvas(svg);
+							var img = velocity.canvasToImg(canvas);
 
-								$('body').append(img);
-							// }
-
+							$('body').append(img);
 						}
 					});
 				}
 
-				$.getJSON('companies.json', function(data) {
+				$.getJSON('data/companies.json', function(data) {
 					for (var i in data) {
 						var company = data[i];
 						renderCompanyData(company);

@@ -1,4 +1,4 @@
-var velocity = require('./velocity.js');
+var velocity = require('./velocity_node.js');
 var http = require('http');
 var fs = require('fs');
 
@@ -32,13 +32,10 @@ function generateVelocityGraph(company) {
 	  res.on('end', function() {
 	   	var prices = getPrices(body);
 	   	if (prices.length > 0) {
-				var svg = velocity.plotVgraph(prices);
-				var canvas = velocity.svgToCanvas(svg);
-				var img = velocity.canvasToImg(canvas);
-				velocity.saveImgToFile(company, img);
+				velocity.generateGraph(prices, company);
 			}
 	  });
-	}).on('error', function(err) { if (err) console.log(err); });
+	}).on('error', function(err) { if (err) console.log(company, err); });
 }
 
 var url = 'http://wekeza.co/api/v1/market_securities?snapshot=true';
@@ -51,4 +48,4 @@ http.get(url, function(res) {
 			generateVelocityGraph(companies[i]);
 		}
   });
-}).on('error', function(err) { if (err) console.log(err); });
+}).on('error', function(err) { if (err) console.log(all, err); });
